@@ -14,24 +14,24 @@ services:
     volumes:
       - custom-vol:/ussd-app
 
-#  db:
-#    image: mysql:5.7
-#    restart: unless-stopped
-#    container_name: mysql
-#    environment:
-#      MYSQL_DATABASE: 'db'
-#      MYSQL_USER: 'root'
-#      MYSQL_PASSWORD: 'password'
-#      MYSQL_ROOT_PASSWORD: 'password'
-#    ports:
-#      - '3307:3307'
-#    expose:
-#      - 3307
-#    volumes:
-#      - custom-vol:/var/lib/mysql
-#    network_mode: host
-#    extra_hosts:
-#      - localhost:127.0.0.1
+  db:
+    image: mysql:5.7
+    restart: unless-stopped
+    container_name: mysql
+    environment:
+      MYSQL_DATABASE: 'db'
+      MYSQL_USER: 'root'
+      MYSQL_PASSWORD: 'password'
+      MYSQL_ROOT_PASSWORD: 'password'
+    ports:
+      - '3307:3307'
+    expose:
+      - 3307
+    volumes:
+      - custom-vol:/var/lib/mysql
+    network_mode: host
+    extra_hosts:
+      - localhost:127.0.0.1
 
   redis-master:
     image: redis:5-alpine
