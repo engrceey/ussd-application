@@ -1,0 +1,114 @@
+version: '3.7'
+services:
+  ussd-application:
+    image: ussd-application
+    container_name: ussd-app
+    restart: unless-stopped
+    ports:
+      - "2222:2222"
+    expose:
+      - "2222"
+    network_mode: host
+    extra_hosts:
+      - localhost:127.0.0.1
+    volumes:
+      - custom-vol:/ussd-app
+
+#  db:
+#    image: mysql:5.7
+#    restart: unless-stopped
+#    container_name: mysql
+#    environment:
+#      MYSQL_DATABASE: 'db'
+#      MYSQL_USER: 'root'
+#      MYSQL_PASSWORD: 'password'
+#      MYSQL_ROOT_PASSWORD: 'password'
+#    ports:
+#      - '3307:3307'
+#    expose:
+#      - 3307
+#    volumes:
+#      - custom-vol:/var/lib/mysql
+#    network_mode: host
+#    extra_hosts:
+#      - localhost:127.0.0.1
+
+  redis-master:
+    image: redis:5-alpine
+    container_name: redis-master
+    restart: unless-stopped
+    ports:
+      - "6377:6377"
+    environment:
+      REDIS_REPLICATION_MODE: master
+      REDIS_PASSWORD: 37r@uzat
+    volumes:
+      - custom-vol:/usr/local/etc/redis/master/redis.conf
+      - custom-vol:/redis/master/data
+    entrypoint: redis-server --appendonly yes
+    network_mode: host
+    extra_hosts:
+      - localhost:127.0.0.1
+
+  redis-replica:
+    image: redis:5-alpine
+    container_name: redis-replica
+    restart: unless-stopped
+    environment:
+      REDIS_REPLICATION_MODE: slave
+      REDIS_MASTER_HOST: redis-master
+      REDIS_MASTER_PORT_NUMBER: 6377
+      REDIS_MASTER_PASSWORD: 37r@uzat
+      REDIS_PASSWORD: 37r@uzat
+    volumes:
+      - custom-vol:/usr/local/etc/redis/slave/redis.conf
+      - custom-vol:/redis/slave/data
+    entrypoint: redis-server --appendonly yes
+    depends_on:
+      - redis-master
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:5.3.0
+    container_name: zookeeper
+    restart: unless-stopped
+    ports:
+      - 3181:3181
+    environment:
+      ZOOKEEPER_SERVER_ID: 1
+      ZOOKEEPER_CLIENT_PORT: 3181
+      ZOOKEEPER_TICK_TIME: 2000
+      ZOOKEEPER_INIT_LIMIT: 5
+      ZOOKEEPER_SYNC_LIMIT: 2
+    volumes:
+      - custom-vol:/tmp/zookeeper/data
+      - custom-vol:/tmp/zookeeper/datalog
+    network_mode: host
+    extra_hosts:
+      - localhost:127.0.0.1
+
+  kafka:
+    image: confluentinc/cp-kafka:5.3.0
+    container_name: kafka
+    restart: unless-stopped
+    ports:
+      - 9992:9992
+    expose:
+      - 9992
+    depends_on:
+      - zookeeper
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: localhost:3181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9992
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 1000
+      CONFLUENT_SUPPORT_CUSTOMER_ID: 'anonymous'
+    volumes:
+      - custom-vol:/tmp/kafka/data
+    network_mode: host
+    extra_hosts:
+      - localhost:127.0.0.1
+
+volumes:
+  custom-vol:
+    external: true

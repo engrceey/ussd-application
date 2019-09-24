@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+            targetNamespace="http://www.etranzact.soap/api/currencyConversion"
+            xmlns:tns="http://www.etranzact.soap/api/currencyConversion"
+            elementFormDefault="qualified">
+
+    <xsd:element name="CurrencyConversionRequest">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="currencyCodeFrom" type="xsd:string" />
+                <xsd:element name="amount" type="xsd:double" />
+                <xsd:element name="currencyCodeTo" type="xsd:string" />
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+
+    <xsd:element name="CurrencyConversionResponse">
+        <xsd:complexType>
+            <xsd:sequence>
+                <xsd:element name="currencyCode" type="xsd:string" />
+                <xsd:element name="amount" type="xsd:double" />
+            </xsd:sequence>
+        </xsd:complexType>
+    </xsd:element>
+</xsd:schema>
